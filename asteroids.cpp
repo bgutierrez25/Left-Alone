@@ -1,6 +1,7 @@
 //
 //program: asteroids.cpp
 //author:  Gordon Griesel
+//modified by: Bryan Gutierrez
 //date:    2014 - 2018
 //mod spring 2015: added constructors
 //This program is a game starting point for a 3350 project.
