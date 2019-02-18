@@ -21,6 +21,7 @@
 #include "log.h"
 #include "fonts.h"
 #include "thangH.h"
+#include "eddieE.h"
 
 //defined types
 typedef float Flt;
@@ -59,13 +60,16 @@ extern void timeCopy(struct timespec *dest, struct timespec *source);
 
 class Global {
 public:
-    	GLuint thangTexture;
+    GLuint thangTexture;
+    GLuint eddieTexture;
 	int xres, yres;
 	char keys[65536];
+	int credits;
 	Global() {
 		xres = 1250;
 		yres = 900;
 		memset(keys, 0, 65536);
+		credits = 1;
 	}
 } gl;
 
@@ -122,8 +126,9 @@ public:
             unlink(ppmname);
     }
 };
-Image img[1] = {
-"./image/bigfoot.png"
+Image img[2] = {
+"./image/bigfoot.png",
+"./image/eddie.png"
 };
 
 class Ship {
@@ -423,6 +428,8 @@ void init_opengl(void)
 	initialize_fonts();
 	//TEXTURE FOR SHOW PICTURE
 	glGenTextures(1, &gl.thangTexture);
+	glGenTextures(1, &gl.eddieTexture);
+	
 	int w = img[0].width;
 	int h = img[0].height;
 	glBindTexture(GL_TEXTURE_2D, gl.thangTexture);
@@ -430,6 +437,13 @@ void init_opengl(void)
     	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
         GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+        
+    //Eddie's
+    glBindTexture(GL_TEXTURE_2D, gl.eddieTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[1].width, img[1].height, 0,
+        GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
 
 }
 
@@ -579,7 +593,8 @@ int check_keys(XEvent *e)
 			break;
 		case XK_minus:
 			break;
-		case 'c':
+		case XK_c:
+			gl.credits = !gl.credits;
 			break;
 	}
 	return 0;
@@ -947,8 +962,22 @@ void render()
 		glEnd();
 	}
 
-
-	showThangPicture(1000,1000,gl.thangTexture);
+	if (gl.credits) {
+		//Thang's name
+		Rect rThang;
+		rThang.bot = 1000 - 20;
+		rThang.left = 1000 - img[0].width / 2 + 100;
+		rThang.center = 0;
+		//Eddie's name
+		Rect rEddie;
+		rEddie.bot = 500 + img[1].height / 2 - 20;
+		rEddie.left = 1000 - img[1].width / 2 + 100;
+		rEddie.center = 0;
+		showThangPicture(1000,1000,gl.thangTexture);
+		ggprint8b(&rThang, 16, 0x00ff0000, "Thang Hin");
+		showEddiePhoto(1000,500, gl.eddieTexture);
+		ggprint8b(&rEddie, 16, 0x00ff0000, "Eddie Ekpo");
+	}
 }
 
 
