@@ -2,6 +2,8 @@
 //program: asteroids.cpp
 //author:  Gordon Griesel
 //date:    2014 - 2018
+//modified by: Thang Hin
+//year of modification: spring 2019
 //mod spring 2015: added constructors
 //This program is a game starting point for a 3350 project.
 //
@@ -20,7 +22,7 @@
 #include <GL/glx.h>
 #include "log.h"
 #include "fonts.h"
-#include "thangH.h"
+#include "thangH.cpp"
 
 //defined types
 typedef float Flt;
@@ -59,13 +61,16 @@ extern void timeCopy(struct timespec *dest, struct timespec *source);
 
 class Global {
 public:
-    	GLuint thangTexture;
+    GLuint thangTexture;
+	GLuint creditTexture;	
 	int xres, yres;
 	char keys[65536];
+    int showCredit;
 	Global() {
 		xres = 1250;
 		yres = 900;
 		memset(keys, 0, 65536);
+        showCredit = 0;
 	}
 } gl;
 
@@ -122,8 +127,9 @@ public:
             unlink(ppmname);
     }
 };
-Image img[1] = {
-"./image/bigfoot.png"
+Image img[2] = {
+"./image/Credit_Background.png",
+"./image/Thang_Icon.png"
 };
 
 class Ship {
@@ -365,6 +371,8 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics();
 void render();
+void credit_screen_render(int x, int y, GLuint textid);
+void credit_screen();
 
 //==========================================================================
 // M A I N
@@ -422,14 +430,19 @@ void init_opengl(void)
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
 	//TEXTURE FOR SHOW PICTURE
+	glGenTextures(1, &gl.creditTexture);
+	glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[0].width, img[0].height, 0, GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+
+
+	//Texture For thang's Picture
 	glGenTextures(1, &gl.thangTexture);
-	int w = img[0].width;
-	int h = img[0].height;
 	glBindTexture(GL_TEXTURE_2D, gl.thangTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
-        GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+   	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[1].width, img[1].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
 
 }
 
@@ -579,7 +592,8 @@ int check_keys(XEvent *e)
 			break;
 		case XK_minus:
 			break;
-		case 'c':
+		case XK_c:
+			gl.showCredit ^= 1;
 			break;
 	}
 	return 0;
@@ -946,10 +960,18 @@ void render()
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
 		glEnd();
 	}
+   	if (gl.showCredit) {
+        glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
+        glColor3ub(0,0,0);
+        glBegin(GL_QUADS);
+            glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+            glTexCoord2f(0.0f, 0.0f); glVertex2i(0, gl.yres);
+            glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
+            glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
+        glEnd();
+        showThangPicture(1000,800, gl.thangTexture);
+    }
+ 
 
-
-	showThangPicture(1000,1000,gl.thangTexture);
 }
-
-
 
