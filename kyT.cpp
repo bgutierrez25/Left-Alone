@@ -8,6 +8,7 @@
  
 void kyimage(int x, int y, GLuint textid) 
 {
+     Rect r;
      glColor3ub(255,255,255);
      //static float angle = 0.0f;
      static int wid = 50;
@@ -27,8 +28,13 @@ void kyimage(int x, int y, GLuint textid)
      glBegin(GL_QUADS);
             glTexCoord2f(0.0f, 1.0f); glVertex2i( -wid, -wid);
             glTexCoord2f(0.0f, 0.0f); glVertex2i( -wid, wid);
-            glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, -wid);
+            glTexCoord2f(1.0f, 0.0f); glVertex2i( wid, wid);
             glTexCoord2f(1.0f, 1.0f); glVertex2i( wid, -wid);
     glEnd();
     glPopMatrix();
+    unsigned int c = 0x00ffff44;
+    r.bot = y - 20;
+    r.left = x - wid/2 - 250;
+    r.center = 0;
+    ggprint16(&r, 32, c ,"cool cat,  Ky tran");
  };
